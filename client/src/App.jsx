@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -19,6 +20,14 @@ function App() {
                   <Dashboard />
                 </ProtectedRoute>
               } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
             />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>

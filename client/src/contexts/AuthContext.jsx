@@ -45,6 +45,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const userData = await apiClient.getMe();
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      return null;
+    }
+  };
+
   const register = async (userData) => {
     try {
       const response = await apiClient.register(userData);
@@ -66,6 +76,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    refreshUser,
     loading,
     isAuthenticated: !!user
   };

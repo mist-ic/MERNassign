@@ -56,6 +56,17 @@ class ApiClient {
     });
   }
 
+  async getMe() {
+    return this.request('/auth/me');
+  }
+
+  async updateMe(updates) {
+    return this.request('/auth/me', {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  }
+
   // Task endpoints
   async getTasks(category = null) {
     const params = category ? `?category=${encodeURIComponent(category)}` : '';
@@ -82,9 +93,6 @@ class ApiClient {
     });
   }
 
-  async getMe() {
-    return this.request('/tasks/me');
-  }
 
   async getCategories() {
     return this.request('/tasks/categories');

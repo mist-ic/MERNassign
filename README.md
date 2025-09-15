@@ -13,10 +13,11 @@ A modern, full-stack task management application built with the MERN stack, feat
 
 ### Unique Features
 - **Quick-Add Parser**: Type "Buy milk #personal" to auto-set title and category
-- **Keyboard Shortcuts**: Press 'N' to focus the quick-add input
+- **Keyboard Shortcut**: Press `Ctrl/Cmd + K` to focus quick-add (won't trigger while typing)
 - **Category Persistence**: Remembers your last used category
-- **Real-time Updates**: Instant UI updates with optimistic updates
+- **Live Updates**: Streaks and the "All" list refresh immediately after task changes
 - **Smart Filtering**: Filter by category and show/hide completed tasks
+- **Profile Management**: Update your name, email, and password
 
 ## Tech Stack
 
@@ -111,8 +112,11 @@ A modern, full-stack task management application built with the MERN stack, feat
 - `POST /tasks` - Create a new task
 - `PATCH /tasks/:id` - Update a task
 - `DELETE /tasks/:id` - Delete a task
-- `GET /tasks/me` - Get current user info
 - `GET /tasks/categories` - Get categories with task counts
+
+### Auth (Profile)
+- `GET /auth/me` - Get current user info
+- `PATCH /auth/me` - Update profile (name, email, or password)
 
 ## Usage
 
@@ -123,13 +127,21 @@ Type tasks quickly using the hashtag syntax:
 - `Exercise` - Creates task "Exercise" using last used category
 
 ### Keyboard Shortcuts
-- Press `N` to focus the quick-add input field
+- Press `Ctrl/Cmd + K` to focus the quick-add input field
+  - Shortcut is disabled while typing in inputs or editable fields
 
 ### Task Management
 - Click the checkbox to mark tasks as complete
 - Click the three-dot menu to edit or delete tasks
 - Use category filters to organize your view
 - Toggle "Show completed" to see all tasks
+
+### Streaks & Progress
+- Weekly heatmap shows Mon–Sun with the current day highlighted
+- Today's progress bar reflects the share of today's completed tasks vs total tasks
+
+### Profile
+- Visit `/profile` to update your name, email, or password
 
 ## Project Structure
 
@@ -194,7 +206,3 @@ The application includes manual testing for:
 3. Make your changes
 4. Test thoroughly
 5. Submit a pull request
-
-## License
-
-This project is open source and available under the MIT License.

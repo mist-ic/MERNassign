@@ -6,10 +6,14 @@ export default function QuickAdd({ onAddTask, lastCategory = 'personal' }) {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef(null);
 
-  // Focus input on 'N' key press
+  // Focus input on Ctrl/Cmd+K (avoid single-letter collisions)
   useEffect(() => {
     const handleKeyPress = (e) => {
-      if (e.key === 'n' && !isFocused && !e.ctrlKey && !e.metaKey) {
+      const isTypingTarget = ['INPUT', 'TEXTAREA'].includes(e.target?.tagName) || e.target?.isContentEditable;
+      if (isTypingTarget) return;
+
+      const isCmdOrCtrlK = (e.key.toLowerCase() === 'k') && (e.ctrlKey || e.metaKey);
+      if (isCmdOrCtrlK && !isFocused) {
         e.preventDefault();
         inputRef.current?.focus();
       }
@@ -68,7 +72,7 @@ export default function QuickAdd({ onAddTask, lastCategory = 'personal' }) {
       
       {isFocused && (
         <div className="absolute top-full left-0 right-0 mt-1 p-2 bg-white border border-gray-200 rounded-lg shadow-lg text-xs text-gray-600">
-          <div>Press <kbd className="px-1 py-0.5 bg-gray-100 rounded">N</kbd> to focus • Use #category to set category</div>
+          <div>Press <kbd className="px-1 py-0.5 bg-gray-100 rounded">Ctrl/Cmd + K</kbd> to focus • Use #category to set category</div>
         </div>
       )}
     </form>

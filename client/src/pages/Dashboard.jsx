@@ -7,6 +7,7 @@ import CategoryFilter from '../components/CategoryFilter';
 import TaskList from '../components/TaskList';
 import StreaksWidget from '../components/StreaksWidget';
 import { LogOut, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const [categories, setCategories] = useState([]);
   const [lastUsedCategory, setLastUsedCategory] = useState('personal');
   const [allTasks, setAllTasks] = useState([]);
+  const [taskRefreshKey, setTaskRefreshKey] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem('lastUsedCategory');
@@ -46,6 +48,11 @@ export default function Dashboard() {
     fetchAllTasks();
   }, []);
 
+  const handleTasksChanged = () => {
+    // Keep sidebar streaks in sync without full page refresh
+    fetchAllTasks();
+  };
+
   const handleQuickAdd = async (taskData) => {
     try {
       await apiClient.createTask(taskData);
@@ -54,6 +61,7 @@ export default function Dashboard() {
       toast.success('Task added successfully!');
       fetchCategories(); // Refresh categories to update counts
       fetchAllTasks(); // Refresh all tasks for streaks
+      setTaskRefreshKey(prev => prev + 1); // Trigger TaskList refresh immediately
     } catch (error) {
       toast.error(error.message || 'Failed to add task');
     }
@@ -78,10 +86,10 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Link to="/profile" className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
                 <User className="w-4 h-4" />
                 {user?.email}
-              </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
@@ -121,6 +129,8 @@ export default function Dashboard() {
             <TaskList
               selectedCategory={selectedCategory}
               showDone={showDone}
+              onDataChange={handleTasksChanged}
+              refreshKey={taskRefreshKey}
             />
           </div>
 

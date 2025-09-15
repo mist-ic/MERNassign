@@ -4,6 +4,7 @@ import { Flame, Calendar, Target } from 'lucide-react';
 export default function StreaksWidget({ tasks }) {
   const [streaks, setStreaks] = useState({});
   const [todayCompletions, setTodayCompletions] = useState(0);
+  const totalTasksCount = tasks?.length || 0;
 
   useEffect(() => {
     calculateStreaks();
@@ -112,14 +113,13 @@ export default function StreaksWidget({ tasks }) {
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-primary-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${Math.min(todayCompletions * 20, 100)}%` }}
+            style={{ width: `${Math.min(totalTasksCount ? (todayCompletions / totalTasksCount) * 100 : 0, 100)}%` }}
           ></div>
         </div>
         <p className="text-xs text-gray-500 mt-1">
-          {todayCompletions === 0 
-            ? "Complete a task to start your streak!" 
-            : `${todayCompletions} task${todayCompletions === 1 ? '' : 's'} completed today`
-          }
+          {totalTasksCount === 0
+            ? "No tasks yet"
+            : `${todayCompletions} of ${totalTasksCount} task${totalTasksCount === 1 ? '' : 's'} completed today`}
         </p>
       </div>
 
@@ -159,41 +159,54 @@ export default function StreaksWidget({ tasks }) {
         </div>
       )}
 
-      {/* Weekly Heatmap Placeholder */}
+      {/* Weekly Heatmap */}
       <div className="mt-6 pt-4 border-t border-gray-200">
         <div className="flex items-center gap-2 mb-3">
           <Calendar className="w-4 h-4 text-gray-500" />
           <span className="text-sm font-medium text-gray-700">This Week</span>
         </div>
-        <div className="flex gap-1">
-          {Array.from({ length: 7 }, (_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (6 - i));
-            const dayTasks = tasks.filter(task => {
-              if (!task.isDone) return false;
-              const taskDate = new Date(task.updatedAt || task.createdAt);
-              return taskDate.toDateString() === date.toDateString();
-            });
-            const intensity = Math.min(dayTasks.length, 4);
-            return (
-              <div
-                key={i}
-                className={`w-8 h-8 rounded text-xs flex items-center justify-center ${
-                  intensity === 0 ? 'bg-gray-100' :
-                  intensity === 1 ? 'bg-green-200' :
-                  intensity === 2 ? 'bg-green-300' :
-                  intensity === 3 ? 'bg-green-400' : 'bg-green-500'
-                }`}
-                title={`${date.toLocaleDateString()}: ${dayTasks.length} tasks completed`}
-              >
-                {date.getDate()}
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-7 gap-2 items-end">
+          {(() => {
+            const startOfWeek = new Date();
+            const day = startOfWeek.getDay();
+            const diffToMonday = (day + 6) % 7; // Monday=0 ... Sunday=6
+            startOfWeek.setHours(0, 0, 0, 0);
+            startOfWeek.setDate(startOfWeek.getDate() - diffToMonday);
+
+            const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const boxes = [];
+            for (let i = 0; i < 7; i++) {
+              const date = new Date(startOfWeek);
+              date.setDate(startOfWeek.getDate() + i);
+              const dayTasks = tasks.filter(task => {
+                if (!task.isDone) return false;
+                const taskDate = new Date(task.updatedAt || task.createdAt);
+                taskDate.setHours(0, 0, 0, 0);
+                return taskDate.getTime() === date.getTime();
+              });
+              const intensity = Math.min(dayTasks.length, 4);
+              const isToday = new Date().toDateString() === date.toDateString();
+              boxes.push(
+                <div key={i} className="flex flex-col items-center gap-1 overflow-hidden">
+                  <div className="text-[10px] text-gray-500 leading-none">{dayLabels[i]}</div>
+                  <div
+                    className={`w-8 h-8 rounded text-[10px] flex items-center justify-center border ${
+                      intensity === 0 ? 'bg-gray-100 border-gray-200' :
+                      intensity === 1 ? 'bg-green-200 border-green-300' :
+                      intensity === 2 ? 'bg-green-300 border-green-400' :
+                      intensity === 3 ? 'bg-green-400 border-green-500' : 'bg-green-500 border-green-600'
+                    } ${isToday ? 'ring-2 ring-primary-500 ring-offset-2' : ''}`}
+                    title={`${date.toLocaleDateString()}: ${dayTasks.length} task(s) completed`}
+                  >
+                    {date.getDate()}
+                  </div>
+                </div>
+              );
+            }
+            return boxes;
+          })()}
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Complete more tasks to fill the heatmap!
-        </p>
+        <p className="text-xs text-gray-500 mt-2">Mon-Sun; ring indicates today</p>
       </div>
     </div>
   );

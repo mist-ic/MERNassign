@@ -5,7 +5,7 @@ import TaskItem from './TaskItem';
 import TaskForm from './TaskForm';
 import { Plus, CheckCircle2, Circle } from 'lucide-react';
 
-export default function TaskList({ selectedCategory, showDone }) {
+export default function TaskList({ selectedCategory, showDone, onDataChange, refreshKey }) {
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +30,7 @@ export default function TaskList({ selectedCategory, showDone }) {
 
   useEffect(() => {
     fetchTasks();
-  }, [selectedCategory]);
+  }, [selectedCategory, refreshKey]);
 
   const handleAddTask = async (taskData) => {
     try {
@@ -42,6 +42,9 @@ export default function TaskList({ selectedCategory, showDone }) {
       // Refresh categories to update counts
       const categoriesData = await apiClient.getCategories();
       setCategories(categoriesData);
+
+      // Notify parent to refresh aggregated data (e.g., streaks)
+      onDataChange?.();
     } catch (error) {
       toast.error(error.message || 'Failed to add task');
     }
@@ -61,6 +64,9 @@ export default function TaskList({ selectedCategory, showDone }) {
       }
       
       toast.success('Task updated successfully!');
+
+      // Notify parent to refresh aggregated data (e.g., streaks)
+      onDataChange?.();
     } catch (error) {
       toast.error(error.message || 'Failed to update task');
     }
@@ -75,6 +81,9 @@ export default function TaskList({ selectedCategory, showDone }) {
       // Refresh categories to update counts
       const categoriesData = await apiClient.getCategories();
       setCategories(categoriesData);
+
+      // Notify parent to refresh aggregated data (e.g., streaks)
+      onDataChange?.();
     } catch (error) {
       toast.error(error.message || 'Failed to delete task');
     }

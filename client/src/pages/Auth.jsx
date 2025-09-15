@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
   const { login, register: registerUser } = useAuth();
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
@@ -13,9 +15,11 @@ export default function Auth() {
       if (isLogin) {
         await login(data);
         toast.success('Login successful!');
+        navigate('/dashboard');
       } else {
         await registerUser(data);
         toast.success('Registration successful!');
+        navigate('/dashboard');
       }
     } catch (error) {
       toast.error(error.message || 'Something went wrong');
